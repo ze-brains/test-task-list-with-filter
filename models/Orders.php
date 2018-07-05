@@ -13,9 +13,12 @@ use Yii;
  *
  * @property OrderItems[] $orderItems
  * @property Customers $cust
+ * 
  */
 class Orders extends \yii\db\ActiveRecord
 {
+    public $order_total;
+    public $order_items_count;
     /**
      * {@inheritdoc}
      */
@@ -32,7 +35,7 @@ class Orders extends \yii\db\ActiveRecord
         return [
             [['order_num', 'order_date', 'cust_id'], 'required'],
             [['order_num'], 'integer'],
-            [['order_date'], 'safe'],
+            [['order_date', 'order_total', 'order_items_count'], 'safe'],
             [['cust_id'], 'string', 'max' => 10],
             [['order_num'], 'unique'],
             [['cust_id'], 'exist', 'skipOnError' => true, 'targetClass' => Customers::className(), 'targetAttribute' => ['cust_id' => 'cust_id']],
@@ -48,6 +51,8 @@ class Orders extends \yii\db\ActiveRecord
             'order_num' => 'ID',
             'order_date' => 'Дата',
             'cust_id' => 'Cust ID',
+            'order_total' => 'Сумма',
+            'order_items_count' => 'Кол-ство товаров',
         ];
     }
 
@@ -65,5 +70,17 @@ class Orders extends \yii\db\ActiveRecord
     public function getCust()
     {
         return $this->hasOne(Customers::className(), ['cust_id' => 'cust_id']);
+    }
+    
+    public function afterFind()
+    {
+        $orderItems = $this->getOrderItems()->asArray()->all();
+        $this->order_items_count = count($orderItems);
+        foreach($orderItems as $orderItem){
+            $this->order_total += $orderItem['quantity'] * $orderItem['item_price'];
+            $this->order_date = date('d-m-Y H:m', strtotime($this->order_date));
+        }
+        
+        parent::afterFind();
     }
 }

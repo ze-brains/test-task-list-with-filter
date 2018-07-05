@@ -8,12 +8,14 @@ use app\models\OrdersSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\OrderItemsSearch;
 
 /**
  * OrdersController implements the CRUD actions for Orders model.
  */
 class OrdersController extends Controller
 {
+
     /**
      * {@inheritdoc}
      */
@@ -39,8 +41,8 @@ class OrdersController extends Controller
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+                    'searchModel' => $searchModel,
+                    'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -53,7 +55,7 @@ class OrdersController extends Controller
     public function actionView($id)
     {
         return $this->render('view', [
-            'model' => $this->findModel($id),
+                    'model' => $this->findModel($id),
         ]);
     }
 
@@ -71,7 +73,7 @@ class OrdersController extends Controller
         }
 
         return $this->render('create', [
-            'model' => $model,
+                    'model' => $model,
         ]);
     }
 
@@ -91,7 +93,7 @@ class OrdersController extends Controller
         }
 
         return $this->render('update', [
-            'model' => $model,
+                    'model' => $model,
         ]);
     }
 
@@ -124,4 +126,15 @@ class OrdersController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    public function actionDetails($id)
+    {
+        $searchModel = new OrderItemsSearch();
+        $dataProvider = $searchModel->search(['OrderItemsSearch' => ['order_num' => $id]]);
+
+        return $this->renderAjax('details', [
+                    'dataProvider' => $dataProvider,
+        ]);
+    }
+
 }

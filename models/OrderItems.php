@@ -18,6 +18,8 @@ use Yii;
  */
 class OrderItems extends \yii\db\ActiveRecord
 {
+    public $product_title;
+    public $order_items_total;
     /**
      * {@inheritdoc}
      */
@@ -51,8 +53,11 @@ class OrderItems extends \yii\db\ActiveRecord
             'order_num' => 'Order Num',
             'order_item' => 'Order Item',
             'prod_id' => 'Prod ID',
-            'quantity' => 'Quantity',
-            'item_price' => 'Item Price',
+            'quantity' => 'Кол-ство',
+            'item_price' => 'Цена',
+            
+            'product_title' => 'Товар',
+            'order_items_total' => 'Сумма',          
         ];
     }
 
@@ -71,4 +76,13 @@ class OrderItems extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Products::className(), ['prod_id' => 'prod_id']);
     }
+    
+    public function afterFind()
+    {
+        $product = $this->getProd()->one();
+        $this->product_title = $product->prod_name;
+        $this->order_items_total = $this->quantity * $this->item_price;
+
+        parent::afterFind();
+    }    
 }

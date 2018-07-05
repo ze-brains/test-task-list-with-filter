@@ -5,12 +5,12 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Orders;
+use app\models\OrderItems;
 
 /**
- * OrdersSearch represents the model behind the search form of `app\models\Orders`.
+ * OrderItemsSearch represents the model behind the search form of `app\models\OrderItems`.
  */
-class OrdersSearch extends Orders
+class OrderItemsSearch extends OrderItems
 {
     /**
      * {@inheritdoc}
@@ -18,8 +18,9 @@ class OrdersSearch extends Orders
     public function rules()
     {
         return [
-            [['order_num'], 'integer'],
-            [['order_date', 'cust_id'], 'safe'],
+            [['order_num', 'order_item', 'quantity'], 'integer'],
+            [['prod_id'], 'safe'],
+            [['item_price'], 'number'],
         ];
     }
 
@@ -41,21 +42,16 @@ class OrdersSearch extends Orders
      */
     public function search($params)
     {
-        $query = Orders::find();
+        $query = OrderItems::find();
 
         // add conditions that should always apply here
-        $dataProviderParams = [
+
+        $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'sort' =>false,
-        ];
+            'pagination' => false,
+        ]);
 
-        if(!isset($params['page-size']) || $params['page-size'] !== 'all'){
-            $dataProviderParams['pagination'] = [
-                'pageSize' => 2,
-            ];            
-        }
-        
-        $dataProvider = new ActiveDataProvider($dataProviderParams);
         $this->load($params);
 
         if (!$this->validate()) {
@@ -67,10 +63,12 @@ class OrdersSearch extends Orders
         // grid filtering conditions
         $query->andFilterWhere([
             'order_num' => $this->order_num,
-            'order_date' => $this->order_date,
+            'order_item' => $this->order_item,
+            'quantity' => $this->quantity,
+            'item_price' => $this->item_price,
         ]);
 
-        $query->andFilterWhere(['like', 'cust_id', $this->cust_id]);
+        $query->andFilterWhere(['like', 'prod_id', $this->prod_id]);
 
         return $dataProvider;
     }
