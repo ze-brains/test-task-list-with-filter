@@ -12,6 +12,11 @@ use app\models\Orders;
  */
 class OrdersSearch extends Orders
 {
+    public $total_from;
+    public $total_to;
+    public $date_from;
+    public $date_to;
+    
     /**
      * {@inheritdoc}
      */
@@ -64,13 +69,28 @@ class OrdersSearch extends Orders
             return $dataProvider;
         }
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'order_num' => $this->order_num,
-            'order_date' => $this->order_date,
-        ]);
-
-        $query->andFilterWhere(['like', 'cust_id', $this->cust_id]);
+        if(!empty($params['OrdersSearch']['total_from'])){
+            $this->total_from = $params['OrdersSearch']['total_from'];
+            $query->andHaving(['>=', 'total_amount', $this->total_from]);
+        }
+        
+        if(!empty($params['OrdersSearch']['total_to'])){
+            $this->total_to = $params['OrdersSearch']['total_to'];
+            $query->andHaving(['<=', 'total_amount', $this->total_to]);
+        }        
+        
+        if(!empty($params['OrdersSearch']['date_from'])){
+            $this->date_from = $params['OrdersSearch']['date_from'];
+            $query->andFilterWhere(['>=', 'order_date', $this->date_from]);
+        }
+        
+        if(!empty($params['OrdersSearch']['date_to'])){
+            $this->date_to = $params['OrdersSearch']['date_to'];
+            $query->andFilterWhere(['<=', 'order_date', $this->date_to]);
+        }          
+        
+//        var_dump($this, $params);exit;
+//        var_dump($query->createCommand()->getRawSql());exit;
 
         return $dataProvider;
     }

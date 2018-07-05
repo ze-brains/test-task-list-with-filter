@@ -17,8 +17,10 @@ use Yii;
  */
 class Orders extends \yii\db\ActiveRecord
 {
-    public $order_total;
+
+    public $total_amount;
     public $order_items_count;
+
     /**
      * {@inheritdoc}
      */
@@ -51,7 +53,7 @@ class Orders extends \yii\db\ActiveRecord
             'order_num' => 'ID',
             'order_date' => 'Дата',
             'cust_id' => 'Cust ID',
-            'order_total' => 'Сумма',
+            'total_amount' => 'Сумма',
             'order_items_count' => 'Кол-ство товаров',
         ];
     }
@@ -71,16 +73,26 @@ class Orders extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Customers::className(), ['cust_id' => 'cust_id']);
     }
-    
+
     public function afterFind()
     {
-        $orderItems = $this->getOrderItems()->asArray()->all();
-        $this->order_items_count = count($orderItems);
-        foreach($orderItems as $orderItem){
-            $this->order_total += $orderItem['quantity'] * $orderItem['item_price'];
-            $this->order_date = date('d-m-Y H:m', strtotime($this->order_date));
-        }
-        
+        $this->order_date = date('d-m-Y H:m', strtotime($this->order_date));
+
         parent::afterFind();
     }
+
+    public static function find()
+    {
+        $query = parent::find();
+        $query->select([
+            '`Orders`.*',
+            'sum(`OrderItems`.`quantity` * `OrderItems`.`item_price`) as `total_amount`',
+            'count(`OrderItems`.`prod_id`) as `order_items_count`'
+        ]);
+        $query->leftJoin('OrderItems', '`Orders`.`order_num` = `OrderItems`.`order_num`');
+        $query->groupBy('`Orders`.`order_num`');
+
+        return $query;
+    }
+
 }

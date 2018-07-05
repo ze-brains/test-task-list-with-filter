@@ -37,6 +37,7 @@ class OrdersController extends Controller
      */
     public function actionIndex()
     {
+//        var_dump(Yii::$app->request->queryParams);exit;
         $searchModel = new OrdersSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
