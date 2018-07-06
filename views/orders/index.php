@@ -14,7 +14,14 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="orders-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
-    <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php  echo $this->render('_search', [
+            'model' => $searchModel,
+            'vendors' => $vendors,
+            'countries' => $countries,
+            'selectedVendors' => $selectedVendors,
+            'selectedCountries' => $selectedCountries,
+        ]); 
+    ?>
 
     <?php
         Modal::begin([
@@ -36,12 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'raw',
                 'value' => function ($data) {
 
-                    return Html::a($data->order_items_count, 
-                            [
+                    return Html::a($data->order_items_count, [
                                 'details', 
                                 'id' => $data->order_num,
-                            ], 
-                            [
+                            ], [
                                 'class' => 'popupModal',
                             ]
                     );
@@ -52,12 +57,10 @@ $this->params['breadcrumbs'][] = $this->title;
     ?>
 
     <?php
-        echo Html::a('Показать все заказы', 
-                            [
+        echo Html::a('Показать все заказы', [
                                 'index', 
                                 'page-size' => 'all',
-                            ], 
-                            [
+                            ], [
                                 'class' => 'btn btn-success',
                             ]
                     );

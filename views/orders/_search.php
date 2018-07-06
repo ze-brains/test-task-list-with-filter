@@ -4,10 +4,8 @@ use yii\helpers\Html;
 use kartik\field\FieldRange;
 use kartik\form\ActiveForm;
 use kartik\date\DatePicker;
+use kartik\select2\Select2;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\OrdersSearch */
-/* @var $form yii\widgets\ActiveForm */
 ?>
 
 <div class="orders-search">
@@ -28,6 +26,22 @@ use kartik\date\DatePicker;
             'type' => FieldRange::INPUT_HTML5_INPUT,
         ]);    
     ?>
+    
+    <div class="form-group">
+        <label class="control-label">Производитель</label>
+        <?= 
+            Select2::widget([
+                'name' => 'vendors',
+                'value' => $selectedVendors,
+                'data' => $vendors,
+                'toggleAllSettings' => [
+                    'selectLabel' => 'Выбрать всех',
+                    'unselectLabel' => 'Снять выделение со всех',
+                ],
+                'options' => ['multiple' => true, 'placeholder' => 'Выбрать производителя ...']
+            ]); 
+        ?>        
+    </div>    
     
     <?= 
         FieldRange::widget([
@@ -54,10 +68,24 @@ use kartik\date\DatePicker;
         ]);    
     ?>
 
-
     <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-default']) ?>
+        <label class="control-label">Страна заказчика</label>
+        <?= 
+            Select2::widget([
+                'name' => 'countries',
+                'value' => $selectedCountries,
+                'data' => $countries,
+                'toggleAllSettings' => [
+                    'selectLabel' => 'Выбрать всех',
+                    'unselectLabel' => 'Снять выделение со всех',
+                ],
+                'options' => ['multiple' => true, 'placeholder' => 'Выбрать страну ...']
+            ]); 
+        ?>        
+    </div>    
+    
+    <div class="form-group">
+        <?= Html::submitButton('Поиск', ['class' => 'btn btn-primary']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

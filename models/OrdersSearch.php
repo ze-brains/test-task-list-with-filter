@@ -12,11 +12,12 @@ use app\models\Orders;
  */
 class OrdersSearch extends Orders
 {
+
     public $total_from;
     public $total_to;
     public $date_from;
     public $date_to;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -48,50 +49,55 @@ class OrdersSearch extends Orders
     {
         $query = Orders::find();
 
-        // add conditions that should always apply here
         $dataProviderParams = [
             'query' => $query,
-            'sort' =>false,
+            'sort' => false,
         ];
 
-        if(!isset($params['page-size']) || $params['page-size'] !== 'all'){
+        if (!isset($params['page-size']) || $params['page-size'] !== 'all') {
             $dataProviderParams['pagination'] = [
                 'pageSize' => 2,
-            ];            
+            ];
         }
-        
+
         $dataProvider = new ActiveDataProvider($dataProviderParams);
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        if(!empty($params['OrdersSearch']['total_from'])){
+        if (!empty($params['OrdersSearch']['total_from'])) {
             $this->total_from = $params['OrdersSearch']['total_from'];
             $query->andHaving(['>=', 'total_amount', $this->total_from]);
         }
-        
-        if(!empty($params['OrdersSearch']['total_to'])){
+
+        if (!empty($params['OrdersSearch']['total_to'])) {
             $this->total_to = $params['OrdersSearch']['total_to'];
             $query->andHaving(['<=', 'total_amount', $this->total_to]);
-        }        
-        
-        if(!empty($params['OrdersSearch']['date_from'])){
+        }
+
+        if (!empty($params['OrdersSearch']['date_from'])) {
             $this->date_from = $params['OrdersSearch']['date_from'];
             $query->andFilterWhere(['>=', 'order_date', $this->date_from]);
         }
-        
-        if(!empty($params['OrdersSearch']['date_to'])){
+
+        if (!empty($params['OrdersSearch']['date_to'])) {
             $this->date_to = $params['OrdersSearch']['date_to'];
             $query->andFilterWhere(['<=', 'order_date', $this->date_to]);
-        }          
-        
-//        var_dump($this, $params);exit;
-//        var_dump($query->createCommand()->getRawSql());exit;
+        }
+
+        if (isset($params['vendors'])) {
+            $query->leftJoin('Products', '`Products`.`prod_id` = `OrderItems`.`prod_id`');
+            $query->andFilterWhere(['IN', '`Products`.`vend_id`', $params['vendors']]);
+        }
+
+        if (isset($params['countries'])) {
+            $query->leftJoin('Customers', '`Customers`.`cust_id` = `Orders`.`cust_id`');
+            $query->andFilterWhere(['IN', '`Customers`.`cust_country`', $params['countries']]);
+        }
 
         return $dataProvider;
     }
+
 }

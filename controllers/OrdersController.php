@@ -9,6 +9,9 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use app\models\OrderItemsSearch;
+use app\models\Vendors;
+use yii\helpers\ArrayHelper;
+use app\models\Customers;
 
 /**
  * OrdersController implements the CRUD actions for Orders model.
@@ -37,13 +40,22 @@ class OrdersController extends Controller
      */
     public function actionIndex()
     {
-//        var_dump(Yii::$app->request->queryParams);exit;
+        $vendors = ArrayHelper::map(Vendors::find()->asArray()->all(),
+                'vend_id', 'vend_name');
+        
+        $countries = ArrayHelper::map(Customers::find()->groupBy('cust_country')->asArray()->all(), 
+                'cust_country', 'cust_country');        
+        
         $searchModel = new OrdersSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
+        
         return $this->render('index', [
-                    'searchModel' => $searchModel,
-                    'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'vendors' => $vendors,
+            'selectedVendors' => Yii::$app->request->get('vendors', []),
+            'countries' => $countries,
+            'selectedCountries' => Yii::$app->request->get('countries', []),
         ]);
     }
 
@@ -56,7 +68,7 @@ class OrdersController extends Controller
     public function actionView($id)
     {
         return $this->render('view', [
-                    'model' => $this->findModel($id),
+            'model' => $this->findModel($id),
         ]);
     }
 
@@ -74,7 +86,7 @@ class OrdersController extends Controller
         }
 
         return $this->render('create', [
-                    'model' => $model,
+            'model' => $model,
         ]);
     }
 
@@ -94,7 +106,7 @@ class OrdersController extends Controller
         }
 
         return $this->render('update', [
-                    'model' => $model,
+            'model' => $model,
         ]);
     }
 
@@ -134,7 +146,7 @@ class OrdersController extends Controller
         $dataProvider = $searchModel->search(['OrderItemsSearch' => ['order_num' => $id]]);
 
         return $this->renderAjax('details', [
-                    'dataProvider' => $dataProvider,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
